@@ -1,0 +1,102 @@
+This library provides a concise, refined set of utilities for doing object-
+oriented programming in JavaScript. It does not invent its own class system,
+decorate classes with elaborate required-yet-opaque undocumented meta-data,
+write impossible-to-understand "helpful" constructors for you, or otherwise
+dabble in black magic.
+
+Instead, it provides a set of practical, proven utilities to help you get the
+most out of JavaScript's prototype based inheritence. Here's a sample:
+
+    attache.namespace('com.example.app', function(app) {
+		// we're passed a reference to the namespace object, which we can use
+		// to make objects globally available.
+		app.version = '1.2.0';
+
+		// here's a class with a named constructor. It extends the base Object
+		// and uses an Observable mixin to provide events.
+		function View(config) {
+			// this class uses the named-parameter idiom: instead of positional
+			// arguments, an Object of config options is passed in.  extend()
+			// makes it easy to copy all config options onto this instance.
+			attache.extend(this, config);
+		}
+		attache.subclass(View, Object, Observable, {
+			tag: 'div',
+			cls: '',
+			template: '',
+
+			// fetches the JSON data from Model this View is bound to.
+			// override to customize.
+			getData: function() { /* ... */ }
+
+			// create an element under the parent and fill it with the template
+			// rendered through the data.
+			render: function(parentElement) { /* ... */ },
+
+			// returns true after the View has been rendered.
+			isRendered: function() { /* ... */ },
+
+			// remove the rendered element
+			destroy: function() { /* ... */ }
+		});
+		
+		// the namespace has already been fully created, so another way to make
+		// an object public is to use the fully qualified name:
+		com.example.app.View = View;
+
+		function MenuView(config) {
+			View.apply(this, arguments);
+		}
+		attache.subclass(MenuView, View, {
+			// override the static properties to make a ul-based menu.
+			tag: 'ul',
+			cls: 'menu',
+			template: '{% foreach item %}<li>{{text}}</li>{% end foreach %}',
+
+			// override and chain the render method to also add event listeners
+			render: function() {
+				View.prototype.render.apply(this, arguments);
+				$(this.element).bind('click', this.onClick);
+			},
+
+			// add additional methods specific to MenuView
+			onClick: function(e) { /* ... */ },
+
+			// override and chain the destroy method (using the special _super
+			// reference) to remove the same listener.
+			destroy: function() {
+				$(this.element).unbind('click', this.onClick);
+				MenuView._super.destroy.apply(this, arguments);
+			}
+		});
+
+		// create a MenuView, passing in a config option to override the cls
+		// property on just this one instance.
+		var menu = new MenuView({ cls: 'horizontal-menu' });
+
+		// lib.formatters is a namespace provided by a third party, an
+		// Object full of useful formatting utilites. I want to use this
+		// library while adding by own custom formatters, but I don't want
+		// to touch the original for fear of side-effects. I also want
+		// to pick up any formatters lazy-loaded later on, and I don't want
+		// the expense of a full copy. The solution is to use a clone.
+		var formatters = attache.clone(lib.formatters, {
+			appleize: function(word) {
+				return 'i' + word.charAt(0).toUpperCase() + word.slice(1);
+			}
+		});
+
+		// the final way to make objects public is to return an Object
+		// from the body of the namespace function.  These get added to
+		// the already existing namespace object, not replace it.
+		return {
+			formatters: formatters,
+			MenuView: MenuView
+		}
+	});
+
+
+The attache-oop-js library is placed in the public domain, and the author disclaims any copyright. Alternatively, if "public domain" doesn't make sense where you live, you may consider it under the MIT license:
+http://www.opensource.org/licenses/mit-license.php
+
+

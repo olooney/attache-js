@@ -1,0 +1,10 @@
+attache.same() is a deep equality operator. Out of the box it can compare
+deeply nested scalar values, Arrays, Objects, and Dates.  It does a reasonable
+job of comparing objects of custom classes, taking their constructors and
+prototypes into consideration.  It can be extended by registering custom
+comparison operators for your own types.  It cannot handle cyclic references.
+
+It is placed in the public domain, and the author disclaims any copyright.  It
+is available at https://github.com/olooney/attache-same-js.
+
+

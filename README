@@ -1,0 +1,6 @@
+Attaché JavaScript Library
+--------------------------
+
+A collection of low-level utility functions (now mostly superceded
+by ES2015 and libraries like lodash) and a fairly interesting pure
+Javascript implementation of a flexible top-down parser engine.
